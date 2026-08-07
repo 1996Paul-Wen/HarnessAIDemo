@@ -1,0 +1,5 @@
+- Agents are created by subclassing `BaseAgent` and customizing behavior via constructor parameters (system_prompt, max_iterations, verbose) rather than overriding the core loop.
+- Each agent file defines a module-level constant string for its system prompt (e.g. `DEFAULT_CHAT_PROMPT`, `TASK_SYSTEM_PROMPT`) and passes it to `super().__init__`.
+- Optional dependencies (`llm`, `tool_registry`, `memory`) are accepted as arguments with defaults constructed lazily inside `__init__` so callers can inject mocks or implementations.
+- Routing and selection logic falls back from LLM-based decisions to deterministic keyword matching before choosing a default, ensuring robustness when the model response is ambiguous.
+- Execution traces are captured per run via an `AgentTrace` instance appended with typed step dicts (`llm_call`, `tool_call`, `tool_result`, `final_answer`) for later summarization.

@@ -1,0 +1,1 @@
+Pure Python using `dataclasses` for `Session`, `json` + filesystem for session persistence, and typed dependencies on `harness.llm.engine.Message`, `harness.memory.base.BaseMemory` / `harness.memory.hybrid.HybridMemory`, and `harness.tools.registry.ToolRegistry`.

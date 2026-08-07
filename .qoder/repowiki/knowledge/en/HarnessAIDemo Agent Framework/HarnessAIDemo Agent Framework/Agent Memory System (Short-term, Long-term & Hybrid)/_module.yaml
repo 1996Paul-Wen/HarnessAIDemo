@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: harness/memory
+title: Agent Memory System (Short-term, Long-term & Hybrid)
+scope:
+    - harness/memory/
+source_files: []
+depends_on: []
+related_to:
+    - path: demos
+    - path: harness/agent

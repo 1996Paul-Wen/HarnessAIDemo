@@ -1,0 +1,1 @@
+None; `LongTermMemory` persists to a configurable JSON file (default `memory_store.json`) created at first write, and `HybridMemory` accepts `storage_path` to control that location.

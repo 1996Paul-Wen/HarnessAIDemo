@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+
+# Demo artifacts
+.sessions/
+.demo_sessions/
+.chat_memory.json
+memory_store.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+
+# Model cache (usually in ~/.cache/huggingface)
+# Uncomment to ignore local model cache:
+# .cache/

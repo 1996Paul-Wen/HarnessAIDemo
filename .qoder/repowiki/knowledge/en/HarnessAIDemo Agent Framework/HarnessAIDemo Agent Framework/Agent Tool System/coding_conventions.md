@@ -1,0 +1,4 @@
+- Every tool subclasses `BaseTool` and declares class-level `name`, `description`, and `parameters` attributes alongside an `execute(**kwargs) -> ToolResult` method.
+- Tool execution errors are reported by returning a `ToolResult(success=False, output="", error=...)` rather than raising exceptions, keeping the caller's execution path uniform.
+- Tools expose their contract to the LLM via `to_description()`, which formats parameters as key-value pairs into a human-readable bullet string used in system prompts.
+- Built-in tools are registered through a dedicated `register_default_tools(registry)` function instead of module-level side effects, allowing controlled initialization of the registry.

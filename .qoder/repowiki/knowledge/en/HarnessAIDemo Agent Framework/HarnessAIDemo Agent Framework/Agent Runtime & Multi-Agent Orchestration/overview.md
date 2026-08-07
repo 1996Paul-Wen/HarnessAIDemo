@@ -1,0 +1,1 @@
+Provides the core agent loop, specialized chat and task agents, and a multi-agent orchestrator that routes requests to specialist agents within the Harness AI framework.

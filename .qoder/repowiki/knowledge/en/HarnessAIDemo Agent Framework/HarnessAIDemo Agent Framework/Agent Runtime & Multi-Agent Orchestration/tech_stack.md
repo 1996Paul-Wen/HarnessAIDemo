@@ -1,0 +1,1 @@
+Python agents built on top of Harness's own abstractions: `BaseLLM`/`Message`/`LLMResponse` for model calls, `ToolRegistry` for tool dispatch, `HybridMemory` as default memory, and `ContextManager` for prompt assembly.

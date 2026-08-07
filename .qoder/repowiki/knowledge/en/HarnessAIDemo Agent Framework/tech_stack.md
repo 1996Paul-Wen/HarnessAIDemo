@@ -1,0 +1,1 @@
+Python ≥3.11 with setuptools; optional local inference via torch/transformers/accelerate for real models, otherwise a mock LLM backend; rich for CLI output and PyYAML for configuration.

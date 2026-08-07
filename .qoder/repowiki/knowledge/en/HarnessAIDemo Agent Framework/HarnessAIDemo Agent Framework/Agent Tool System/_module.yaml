@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: harness/tools
+title: Agent Tool System
+scope:
+    - harness/tools/
+source_files: []
+depends_on: []
+related_to:
+    - path: demos
+    - path: harness/agent

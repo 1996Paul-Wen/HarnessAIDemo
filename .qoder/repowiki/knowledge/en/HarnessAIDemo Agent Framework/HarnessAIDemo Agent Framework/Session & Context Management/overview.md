@@ -1,0 +1,1 @@
+Provides multi-session conversation isolation and prompt assembly, combining system prompts, tool descriptions, long-term memory, and recent history into LLM-ready message lists.

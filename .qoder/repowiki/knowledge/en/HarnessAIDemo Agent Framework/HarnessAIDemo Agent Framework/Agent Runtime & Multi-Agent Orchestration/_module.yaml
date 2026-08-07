@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: harness/agent
+title: Agent Runtime & Multi-Agent Orchestration
+scope:
+    - harness/agent/
+source_files: []
+depends_on: []
+related_to:
+    - path: demos
+    - path: harness/memory
+    - path: harness/session_context
+    - path: harness/tools

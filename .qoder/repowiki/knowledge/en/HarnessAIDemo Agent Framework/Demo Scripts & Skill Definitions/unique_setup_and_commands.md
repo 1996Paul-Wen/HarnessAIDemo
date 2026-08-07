@@ -1,0 +1,1 @@
+Run any demo directly with `python demos/demo_<feature>.py`; each script sets `HARNESS_LLM_BACKEND=mock` so no external LLM credentials are required. Interactive demos (`demo_chat.py`) exit on `quit`/`exit`/`q`.

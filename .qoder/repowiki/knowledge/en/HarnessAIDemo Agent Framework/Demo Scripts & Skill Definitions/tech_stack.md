@@ -1,0 +1,1 @@
+Python scripts driven by the Harness framework; all demos default to the mock LLM backend via `HARNESS_LLM_BACKEND=mock`; skills are defined in Markdown with YAML frontmatter and loaded through `harness.skill.loader`.

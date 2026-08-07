@@ -1,0 +1,1 @@
+Defines the Skill data model and a filesystem-based loader that discovers, parses, and instantiates markdown-defined agent capabilities from SKILL.md files.

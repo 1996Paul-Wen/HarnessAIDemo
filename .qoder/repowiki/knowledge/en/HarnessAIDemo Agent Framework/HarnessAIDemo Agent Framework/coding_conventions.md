@@ -1,0 +1,3 @@
+- Configuration is expressed as `@dataclass` objects with `from_env` / `default_factory` constructors and consumed uniformly by every subsystem.
+- Each subsystem exposes a minimal public interface in its `__init__.py` while keeping implementation details in sibling modules.
+- Pluggable components (memory backends, tools, skills) are registered through central registries (`tools.registry`, `skill.loader`) rather than hard-coded imports.

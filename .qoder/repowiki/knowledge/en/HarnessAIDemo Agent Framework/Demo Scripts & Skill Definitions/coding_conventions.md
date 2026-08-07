@@ -1,0 +1,3 @@
+- Every demo script prepends the repository root to `sys.path` and sets `HARNESS_LLM_BACKEND=mock` before importing Harness modules, ensuring standalone execution without configuration.
+- Each demo follows a uniform structure: print a banner header, construct an LLM via `create_llm()`, assemble tools/memory/skills, instantiate the appropriate Harness component, then run a scripted or interactive loop.
+- Skills are declared as per-directory SKILL.md files with YAML frontmatter metadata followed by instructional Markdown, rather than Python classes.

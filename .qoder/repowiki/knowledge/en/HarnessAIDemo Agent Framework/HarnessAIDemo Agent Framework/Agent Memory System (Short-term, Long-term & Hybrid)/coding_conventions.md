@@ -1,0 +1,5 @@
+- Each memory implementation subclasses `BaseMemory` and implements the same five abstract methods (`add`, `get_recent`, `search`, `clear`, `get_all`) so they are interchangeable at call sites.
+- Items are always wrapped as `MemoryItem` dataclasses carrying `role`, `content`, `timestamp`, and optional `metadata` dict before storage.
+- Search methods return results sorted by relevance score and capped at `top_k`, with empty-input early returns producing `[]`.
+- Persistent state in `LongTermMemory` is kept in sync via private `_save`/`_load` helpers called after mutations and during initialization, with errors logged rather than raised.
+- Public classes expose a `__len__` method delegating to their internal collection size for consistent introspection.

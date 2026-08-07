@@ -1,0 +1,1 @@
+Run the framework via `harness/cli.py`; all runtime behavior is driven by `HarnessConfig.from_env()` which reads `HARNESS_*` environment variables to pick the LLM backend, model, token limits, temperature, device, and memory persistence path.

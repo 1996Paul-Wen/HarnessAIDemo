@@ -1,0 +1,1 @@
+`bash setup.sh` creates `.venv` with Python 3.11, installs requirements, and installs the package editable; run demos via `python run.py <subcommand>` or the `harness-demo` console script after activation.

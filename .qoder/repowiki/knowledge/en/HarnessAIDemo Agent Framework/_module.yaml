@@ -1,0 +1,14 @@
+schema_version: 1
+module_path: ""
+title: HarnessAIDemo Agent Framework
+scope:
+    - README.md
+    - pyproject.toml
+    - requirements.txt
+    - run.py
+    - setup.sh
+    - .gitignore
+    - .python-version
+source_files: []
+depends_on: []
+related_to: []

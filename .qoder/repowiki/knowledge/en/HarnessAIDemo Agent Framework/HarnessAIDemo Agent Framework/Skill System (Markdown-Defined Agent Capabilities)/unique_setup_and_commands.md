@@ -1,0 +1,1 @@
+Skills must be placed under a directory named by default `demos/skills`, with each skill in its own subdirectory containing a `SKILL.md` file whose YAML frontmatter declares `name`, `description`, optional `tags` (space-separated list parsed as word tokens), and optional `version`.

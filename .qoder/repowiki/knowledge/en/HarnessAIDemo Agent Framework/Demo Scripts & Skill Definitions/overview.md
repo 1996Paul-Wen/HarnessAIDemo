@@ -1,0 +1,1 @@
+Standalone demo scripts that exercise Harness agents, chat, sessions, MCP, multi-agent, and skills features using a mock LLM backend, plus markdown-defined skill definitions.

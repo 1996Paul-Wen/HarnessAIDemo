@@ -1,0 +1,109 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: Q0DeR-MaG1C-BrAnCh-Fo2-NoN-GiT-Or-No-C0MmIt
+nodes_managed: true
+exported_at: "2026-08-07T04:22:43Z"
+modules:
+    "":
+        dir_name: HarnessAIDemo Agent Framework
+        title: HarnessAIDemo Agent Framework
+        scope:
+            - README.md
+            - pyproject.toml
+            - requirements.txt
+            - run.py
+            - setup.sh
+            - .gitignore
+            - .python-version
+        source_files: []
+        children:
+            - demos
+            - harness
+        depends_on: []
+        related_to: []
+    demos:
+        dir_name: Demo Scripts & Skill Definitions
+        title: Demo Scripts & Skill Definitions
+        scope:
+            - demos/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: harness/agent
+            - path: harness/memory
+            - path: harness/session_context
+            - path: harness/skill
+            - path: harness/tools
+    harness:
+        dir_name: HarnessAIDemo Agent Framework
+        title: HarnessAIDemo Agent Framework
+        scope:
+            - harness/
+        source_files: []
+        children:
+            - harness/agent
+            - harness/memory
+            - harness/session_context
+            - harness/skill
+            - harness/tools
+        depends_on: []
+        related_to: []
+    harness/agent:
+        dir_name: Agent Runtime & Multi-Agent Orchestration
+        title: Agent Runtime & Multi-Agent Orchestration
+        scope:
+            - harness/agent/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: demos
+            - path: harness/memory
+            - path: harness/session_context
+            - path: harness/tools
+    harness/memory:
+        dir_name: Agent Memory System (Short-term, Long-term & Hybrid)
+        title: Agent Memory System (Short-term, Long-term & Hybrid)
+        scope:
+            - harness/memory/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: demos
+            - path: harness/agent
+    harness/session_context:
+        dir_name: Session & Context Management
+        title: Session & Context Management
+        scope:
+            - harness/session/
+            - harness/context/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: demos
+            - path: harness/agent
+    harness/skill:
+        dir_name: Skill System (Markdown-Defined Agent Capabilities)
+        title: Skill System (Markdown-Defined Agent Capabilities)
+        scope:
+            - harness/skill/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: demos
+    harness/tools:
+        dir_name: Agent Tool System
+        title: Agent Tool System
+        scope:
+            - harness/tools/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: demos
+            - path: harness/agent

@@ -1,0 +1,4 @@
+- Public types are exposed through the package `__init__.py` while internal modules keep implementation details private.
+- Skill definitions follow a fixed filesystem layout: one subdirectory per skill containing a `SKILL.md` file with YAML frontmatter followed by Markdown instructions.
+- Frontmatter fields are parsed line-by-line with simple `startswith` checks against key names rather than using a full YAML parser.
+- Errors during bulk loading (`load_all`) are logged and skipped so a single malformed skill does not prevent others from being loaded.

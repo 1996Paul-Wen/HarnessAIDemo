@@ -1,0 +1,1 @@
+Provides a pluggable memory abstraction for agents with in-memory short-term buffer, persistent TF-IDF long-term store, and a hybrid combiner that merges recent context with relevant past memories.

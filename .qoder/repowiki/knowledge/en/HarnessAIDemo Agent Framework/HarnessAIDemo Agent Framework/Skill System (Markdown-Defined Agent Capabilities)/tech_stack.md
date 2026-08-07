@@ -1,0 +1,1 @@
+Pure Python with no third-party dependencies; SKILL.md parsing uses regex-based YAML frontmatter extraction rather than a YAML library.

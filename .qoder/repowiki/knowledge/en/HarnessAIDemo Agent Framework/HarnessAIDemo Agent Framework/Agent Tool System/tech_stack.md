@@ -1,0 +1,1 @@
+Pure Python using `abc.ABC`, `dataclasses.dataclass`, and standard library modules (`os`, `datetime`, `re`) for built-in tool implementations.

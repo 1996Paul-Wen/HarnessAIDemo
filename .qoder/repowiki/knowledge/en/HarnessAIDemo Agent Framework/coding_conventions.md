@@ -1,0 +1,2 @@
+- All user-facing entry points go through `run.py` subcommands rather than invoking module code directly.
+- Demo behavior is controlled by `HARNESS_LLM_BACKEND` and `HARNESS_MODEL_NAME` environment variables instead of command-line flags.

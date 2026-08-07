@@ -1,0 +1,1 @@
+Pure Python using dataclasses for configuration (`config.py`), JSON-based persistence for long-term memory, and optional HuggingFace transformers backends selected at runtime via environment variables (`HARNESS_LLM_BACKEND`, `HARNESS_MODEL_NAME`, etc.).

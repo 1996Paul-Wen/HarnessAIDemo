@@ -1,0 +1,4 @@
+- Each sub-package centralizes its API in a single `manager.py` module and re-exports only the public classes via `__init__.py`.
+- Persistent entities implement both `to_dict()` serialization and a `from_dict()` classmethod deserializer so they can be round-tripped to JSON files.
+- Configuration is passed via constructor parameters with sensible defaults (e.g. `storage_dir='.sessions'`, `max_context_tokens=4096`) rather than globals or environment variables.
+- Optional collaborators (`memory`, `tool_registry`) are injected at construction time and guarded with `isinstance`/truthiness checks before use, keeping the manager testable and decoupled.

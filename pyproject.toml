@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "harness-ai-demo"
+version = "0.1.0"
+description = "A comprehensive demo for understanding AI Agent Harness engineering"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+
+dependencies = [
+    "torch>=2.1.0",
+    "transformers>=4.40.0",
+    "accelerate>=0.27.0",
+    "rich>=13.7.0",
+    "pyyaml>=6.0.1",
+    "numpy>=1.24.0",
+]
+
+[project.scripts]
+harness-demo = "harness.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["harness*"]

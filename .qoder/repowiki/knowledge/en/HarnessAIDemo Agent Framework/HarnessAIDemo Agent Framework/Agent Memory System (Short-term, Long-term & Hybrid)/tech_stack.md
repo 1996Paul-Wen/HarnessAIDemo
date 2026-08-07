@@ -1,0 +1,1 @@
+Pure Python with stdlib only: `collections.deque` for bounded FIFO buffer, `collections.Counter` + `math.log` for TF-IDF scoring, and JSON file persistence (`memory_store.json`) — no vector DB or external embedding dependency.

@@ -1,0 +1,1 @@
+Provides an extensible tool framework that lets the agent call external capabilities (calculator, datetime, file ops) via a registry-driven interface with standardized results.

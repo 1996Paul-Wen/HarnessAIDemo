@@ -1,0 +1,1 @@
+Python package that wires an LLM-backed agent loop with pluggable memory, tools, skills, sessions, and multi-agent orchestration behind a shared configuration layer.
