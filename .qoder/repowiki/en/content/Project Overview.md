@@ -3,8 +3,12 @@
 <cite>
 **Referenced Files in This Document**
 - [README.md](file://README.md)
-- [harness/__init__.py](file://harness/__init__.py)
+- [pyproject.toml](file://pyproject.toml)
 - [run.py](file://run.py)
+- [harness/__init__.py](file://harness/__init__.py)
+- [harness/cli.py](file://harness/cli.py)
+- [setup.sh](file://setup.sh)
+- [requirements.txt](file://requirements.txt)
 - [harness/agent/base.py](file://harness/agent/base.py)
 - [harness/context/manager.py](file://harness/context/manager.py)
 - [harness/memory/base.py](file://harness/memory/base.py)
@@ -16,6 +20,14 @@
 - [harness/llm/engine.py](file://harness/llm/engine.py)
 - [demos/demo_agent.py](file://demos/demo_agent.py)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated project configuration section to reflect standardized Python packaging
+- Added information about the new entry point script `harness-demo`
+- Updated installation and setup instructions for the new packaging structure
+- Enhanced project structure documentation to show proper Python package organization
+- Added version management and dependency management details
 
 ## Table of Contents
 1. Introduction
@@ -29,44 +41,97 @@
 9. Conclusion
 
 ## Introduction
-HarnessAIDemo is a comprehensive, educational demonstration of an industrial-grade AI Agent Harness built around HuggingFace models. It shows how to transform a large language model from a simple chatbot into an autonomous agent that can plan multi-step reasoning, call tools, remember context across turns, and collaborate with other agents. The project implements the core concepts needed for production-like systems: an Agent Loop, Context Management, Memory System, Tool System, MCP Protocol, Skill System, Session Management, and Multi-Agent orchestration. It provides both conceptual overviews for beginners and concrete implementation details for experienced developers, along with runnable demos using either a mock backend or real models via Transformers.
+HarnessAIDemo is a comprehensive, educational demonstration of an industrial-grade AI Agent Harness built around HuggingFace models. Now properly packaged as `harness-ai-demo` version 0.1.0, it shows how to transform a large language model from a simple chatbot into an autonomous agent that can plan multi-step reasoning, call tools, remember context across turns, and collaborate with other agents. The project implements the core concepts needed for production-like systems: an Agent Loop, Context Management, Memory System, Tool System, MCP Protocol, Skill System, Session Management, and Multi-Agent orchestration. It provides both conceptual overviews for beginners and concrete implementation details for experienced developers, along with runnable demos using either a mock backend or real models via Transformers.
+
+The project has been migrated to a proper Git-based repository with standard Python packaging conventions, making it installable as a package and providing a command-line entry point `harness-demo` for easy access to all demo functionality.
 
 ## Project Structure
-The repository is organized into a clear separation between the harness framework and demo scripts:
-- harness/: Core framework modules (LLM engine, agent loop, memory, tools, context, MCP, skills, sessions, orchestrator)
-- demos/: Runnable examples demonstrating each feature
-- run.py: CLI entry point to launch different demos
-- README.md: End-to-end overview, quick start, and learning path
+The repository follows standard Python package conventions with clear separation between the harness framework and demo scripts:
+
+```
+HarnessAIDemo/
+├── pyproject.toml          # Python package configuration (name: harness-ai-demo v0.1.0)
+├── requirements.txt        # Development dependencies
+├── setup.sh               # Environment setup script (Python 3.11+)
+├── run.py                 # Legacy entry point (still supported)
+├── README.md              # Documentation and usage guide
+│
+├── harness/                # Main Python package
+│   ├── __init__.py        # Package metadata and version
+│   ├── cli.py             # Command-line interface
+│   ├── config.py          # Configuration management
+│   │
+│   ├── llm/               # LLM engine layer
+│   │   └── engine.py      # Model abstraction + backends
+│   ├── tools/             # Tool system
+│   │   ├── base.py        # BaseTool abstract class
+│   │   ├── registry.py    # ToolRegistry implementation
+│   │   └── builtin.py     # Built-in tools
+│   ├── memory/            # Memory system
+│   │   ├── base.py        # BaseMemory abstract class
+│   │   ├── short_term.py  # Short-term memory
+│   │   ├── long_term.py   # Long-term memory
+│   │   └── hybrid.py      # Hybrid memory strategy
+│   ├── context/           # Context management
+│   │   └── manager.py     # ContextManager implementation
+│   ├── mcp/               # MCP protocol
+│   │   └── protocol.py    # Server/Client implementation
+│   ├── skill/             # Skill system
+│   │   ├── base.py        # Skill data structures
+│   │   └── loader.py      # SKILL.md parser
+│   ├── agent/             # Agent system
+│   │   ├── base.py        # BaseAgent + Agent Loop
+│   │   ├── chat.py        # ChatAgent implementation
+│   │   ├── task.py        # TaskAgent implementation
+│   │   └── orchestrator.py # Multi-agent coordination
+│   └── session/           # Session management
+│       └── manager.py     # SessionManager implementation
+│
+└── demos/                 # Demo scripts and examples
+    ├── demo_chat.py       # Interactive chat demo
+    ├── demo_agent.py      # Single agent demo
+    ├── demo_multi_agent.py # Multi-agent demo
+    ├── demo_mcp.py        # MCP protocol demo
+    ├── demo_skills.py     # Skills demo
+    ├── demo_session.py    # Session management demo
+    └── skills/            # Example skills
+        ├── summarizer/SKILL.md
+        └── translator/SKILL.md
+```
+
+**Updated** The project now uses standard Python packaging with `pyproject.toml` configuration, enabling installation as `harness-ai-demo` package version 0.1.0 with Python 3.11+ requirements.
 
 ```mermaid
 graph TB
-A["run.py"] --> B["harness/cli.py"]
-subgraph "Framework"
-C["Agent Loop<br/>harness/agent/base.py"]
-D["Context Manager<br/>harness/context/manager.py"]
-E["Memory Base<br/>harness/memory/base.py"]
-F["Tool Base<br/>harness/tools/base.py"]
-G["MCP Protocol<br/>harness/mcp/protocol.py"]
-H["Skill Base<br/>harness/skill/base.py"]
-I["Session Manager<br/>harness/session/manager.py"]
-J["Orchestrator<br/>harness/agent/orchestrator.py"]
-K["LLM Engine<br/>harness/llm/engine.py"]
+A["harness-demo<br/>Entry Point"] --> B["harness.cli.main()"]
+C["python run.py"] --> B
+subgraph "Package: harness-ai-demo v0.1.0"
+D["Agent Loop<br/>harness/agent/base.py"]
+E["Context Manager<br/>harness/context/manager.py"]
+F["Memory System<br/>harness/memory/base.py"]
+G["Tool System<br/>harness/tools/base.py"]
+H["MCP Protocol<br/>harness/mcp/protocol.py"]
+I["Skill System<br/>harness/skill/base.py"]
+J["Session Manager<br/>harness/session/manager.py"]
+K["Orchestrator<br/>harness/agent/orchestrator.py"]
+L["LLM Engine<br/>harness/llm/engine.py"]
 end
-A --> C
-C --> D
-C --> E
-C --> F
-C --> K
-J --> C
-G --> F
-H --> D
-I --> D
+B --> D
+D --> E
+D --> F
+D --> G
+D --> L
+K --> D
+H --> G
+I --> E
+J --> E
 ```
 
 **Diagram sources**
-- [run.py:1-28](file://run.py#L1-L28)
-- [harness/agent/base.py:63-160](file://harness/agent/base.py#L63-L160)
-- [harness/context/manager.py:41-104](file://harness/context/manager.py#L41-L104)
+- [pyproject.toml:22-23](file://pyproject.toml#L22-L23)
+- [harness/cli.py:331-362](file://harness/cli.py#L331-L362)
+- [harness/agent/base.py:63-167](file://harness/agent/base.py#L63-L167)
+- [harness/context/manager.py:41-118](file://harness/context/manager.py#L41-L118)
 - [harness/memory/base.py:27-64](file://harness/memory/base.py#L27-L64)
 - [harness/tools/base.py:30-67](file://harness/tools/base.py#L30-L67)
 - [harness/mcp/protocol.py:68-210](file://harness/mcp/protocol.py#L68-L210)
@@ -76,25 +141,27 @@ I --> D
 - [harness/llm/engine.py:127-250](file://harness/llm/engine.py#L127-L250)
 
 **Section sources**
+- [pyproject.toml:1-27](file://pyproject.toml#L1-L27)
 - [README.md:73-131](file://README.md#L73-L131)
 - [run.py:1-28](file://run.py#L1-L28)
+- [harness/__init__.py:1-16](file://harness/__init__.py#L1-L16)
 
 ## Core Components
 This section introduces the key building blocks that make the harness work as an autonomous agent system.
 
-- Agent Loop: The central execution cycle that builds context, calls the LLM, executes tool calls when requested, feeds results back, and repeats until a final answer is produced. It includes safeguards like max iterations to prevent infinite loops.
-- Context Management: Assembles the full prompt for each LLM call by combining system instructions, tool descriptions, relevant long-term memory, recent conversation history, and the current user input. It also estimates token usage to respect context windows.
-- Memory System: Provides short-term (recent messages), long-term (persistent, searchable knowledge), and hybrid memory strategies to maintain continuity across turns and sessions.
-- Tool System: Defines a base class for tools with name, description, parameters, and execute method; a registry to discover and invoke tools; and built-in tools for common tasks.
-- MCP Protocol: Implements a simplified Model Context Protocol with server/client abstractions, JSON-RPC style requests/responses, and integration to expose tools, resources, and prompts.
-- Skill System: Loads reusable capabilities defined via Markdown files (SKILL.md) with metadata and instructions, which are injected into prompts to guide behavior.
-- Session Management: Manages multiple independent conversations with persistence, switching, listing, and deletion. Each session maintains its own message history and metadata.
-- Multi-Agent Orchestration: Coordinates multiple specialized agents through a supervisor pattern, delegating tasks based on intent and aggregating results.
+- **Agent Loop**: The central execution cycle that builds context, calls the LLM, executes tool calls when requested, feeds results back, and repeats until a final answer is produced. It includes safeguards like max iterations to prevent infinite loops.
+- **Context Management**: Assembles the full prompt for each LLM call by combining system instructions, tool descriptions, relevant long-term memory, recent conversation history, and the current user input. It also estimates token usage to respect context windows.
+- **Memory System**: Provides short-term (recent messages), long-term (persistent, searchable knowledge), and hybrid memory strategies to maintain continuity across turns and sessions.
+- **Tool System**: Defines a base class for tools with name, description, parameters, and execute method; a registry to discover and invoke tools; and built-in tools for common tasks.
+- **MCP Protocol**: Implements a simplified Model Context Protocol with server/client abstractions, JSON-RPC style requests/responses, and integration to expose tools, resources, and prompts.
+- **Skill System**: Loads reusable capabilities defined via Markdown files (SKILL.md) with metadata and instructions, which are injected into prompts to guide behavior.
+- **Session Management**: Manages multiple independent conversations with persistence, switching, listing, and deletion. Each session maintains its own message history and metadata.
+- **Multi-Agent Orchestration**: Coordinates multiple specialized agents through a supervisor pattern, delegating tasks based on intent and aggregating results.
 
 These components together enable LLMs to act as autonomous agents capable of planning, tool use, and collaboration.
 
 **Section sources**
-- [harness/agent/base.py:63-160](file://harness/agent/base.py#L63-L160)
+- [harness/agent/base.py:63-167](file://harness/agent/base.py#L63-L167)
 - [harness/context/manager.py:41-118](file://harness/context/manager.py#L41-L118)
 - [harness/memory/base.py:27-64](file://harness/memory/base.py#L27-L64)
 - [harness/tools/base.py:30-67](file://harness/tools/base.py#L30-L67)
@@ -105,9 +172,9 @@ These components together enable LLMs to act as autonomous agents capable of pla
 
 ## Architecture Overview
 At a high level, the harness composes several layers:
-- LLM Engine: Abstract interface with backends (Transformers for real models, Mock for demos).
-- Agent Layer: BaseAgent implements the Agent Loop; specialized agents extend it; Orchestrator coordinates multiple agents.
-- Support Layers: ContextManager, Memory, Tools, Skills, Sessions, and MCP integrate with the Agent Loop to provide rich capabilities.
+- **LLM Engine**: Abstract interface with backends (Transformers for real models, Mock for demos).
+- **Agent Layer**: BaseAgent implements the Agent Loop; specialized agents extend it; Orchestrator coordinates multiple agents.
+- **Support Layers**: ContextManager, Memory, Tools, Skills, Sessions, and MCP integrate with the Agent Loop to provide rich capabilities.
 
 ```mermaid
 sequenceDiagram
@@ -137,8 +204,8 @@ end
 ```
 
 **Diagram sources**
-- [harness/agent/base.py:97-160](file://harness/agent/base.py#L97-L160)
-- [harness/context/manager.py:61-104](file://harness/context/manager.py#L61-L104)
+- [harness/agent/base.py:97-167](file://harness/agent/base.py#L97-L167)
+- [harness/context/manager.py:61-118](file://harness/context/manager.py#L61-L118)
 - [harness/memory/base.py:27-64](file://harness/memory/base.py#L27-L64)
 - [harness/llm/engine.py:127-250](file://harness/llm/engine.py#L127-L250)
 
@@ -168,10 +235,10 @@ Return --> End(["End"])
 ```
 
 **Diagram sources**
-- [harness/agent/base.py:97-160](file://harness/agent/base.py#L97-L160)
+- [harness/agent/base.py:97-167](file://harness/agent/base.py#L97-L167)
 
 **Section sources**
-- [harness/agent/base.py:63-160](file://harness/agent/base.py#L63-L160)
+- [harness/agent/base.py:63-167](file://harness/agent/base.py#L63-L167)
 
 ### Context Management
 ContextManager constructs the complete message list for each LLM call:
@@ -438,43 +505,44 @@ Session["SessionManager"] --> Ctx
 ```
 
 **Diagram sources**
-- [harness/agent/base.py:63-160](file://harness/agent/base.py#L63-L160)
+- [harness/agent/base.py:63-167](file://harness/agent/base.py#L63-L167)
 - [harness/context/manager.py:41-118](file://harness/context/manager.py#L41-L118)
 - [harness/agent/orchestrator.py:31-152](file://harness/agent/orchestrator.py#L31-L152)
-- [harness/mcp/protocol.py:68-210](file://harness/mcp/protocol.py#L68-L210)
+- [harness/mcp/protocol.py:68-210](file://harness/mcp/protocol.py#L68-210)
 - [harness/session/manager.py:71-146](file://harness/session/manager.py#L71-L146)
 
 **Section sources**
-- [harness/agent/base.py:63-160](file://harness/agent/base.py#L63-L160)
+- [harness/agent/base.py:63-167](file://harness/agent/base.py#L63-L167)
 - [harness/context/manager.py:41-118](file://harness/context/manager.py#L41-L118)
 - [harness/agent/orchestrator.py:31-152](file://harness/agent/orchestrator.py#L31-L152)
-- [harness/mcp/protocol.py:68-210](file://harness/mcp/protocol.py#L68-L210)
+- [harness/mcp/protocol.py:68-210](file://harness/mcp/protocol.py#L68-210)
 - [harness/session/manager.py:71-146](file://harness/session/manager.py#L71-L146)
 
 ## Performance Considerations
-- Context window management: Use ContextManager’s token estimation to avoid exceeding limits; prioritize recent and relevant memory.
-- Iteration limits: Configure max_iterations to balance thoroughness and efficiency; monitor tool call loops.
-- Backend choice: Use MockBackend for fast iteration and testing; switch to TransformersBackend for real model behavior.
-- Memory retrieval: Tune top_k and relevance thresholds in memory search to reduce noise and improve performance.
-- Tool execution: Keep tools lightweight and deterministic where possible; handle errors gracefully to avoid blocking the loop.
-
-[No sources needed since this section provides general guidance]
+- **Context window management**: Use ContextManager's token estimation to avoid exceeding limits; prioritize recent and relevant memory.
+- **Iteration limits**: Configure max_iterations to balance thoroughness and efficiency; monitor tool call loops.
+- **Backend choice**: Use MockBackend for fast iteration and testing; switch to TransformersBackend for real model behavior.
+- **Memory retrieval**: Tune top_k and relevance thresholds in memory search to reduce noise and improve performance.
+- **Tool execution**: Keep tools lightweight and deterministic where possible; handle errors gracefully to avoid blocking the loop.
+- **Package installation**: Install as `harness-ai-demo` package for optimal performance and dependency management.
 
 ## Troubleshooting Guide
 Common issues and resolutions:
-- Infinite loops: Ensure max_iterations is set appropriately; verify tool results are being appended as observations so the LLM can proceed.
-- Missing tool calls: Check tool descriptions in system prompt and ensure ToolRegistry has registered tools; validate parsing of tool call formats.
-- Context overflow: Reduce history length or memory inclusion; use estimate_tokens to stay within limits.
-- MCP errors: Validate server connections and tool names; inspect MCPRequest/MCPResponse for errors.
-- Session persistence: Confirm storage directory exists and JSON files are valid; handle load exceptions gracefully.
+- **Infinite loops**: Ensure max_iterations is set appropriately; verify tool results are being appended as observations so the LLM can proceed.
+- **Missing tool calls**: Check tool descriptions in system prompt and ensure ToolRegistry has registered tools; validate parsing of tool call formats.
+- **Context overflow**: Reduce history length or memory inclusion; use estimate_tokens to stay within limits.
+- **MCP errors**: Validate server connections and tool names; inspect MCPRequest/MCPResponse for errors.
+- **Session persistence**: Confirm storage directory exists and JSON files are valid; handle load exceptions gracefully.
+- **Installation issues**: Ensure Python 3.11+ is installed; use `pip install -e .` for development mode; verify virtual environment activation.
 
 **Section sources**
-- [harness/agent/base.py:97-160](file://harness/agent/base.py#L97-L160)
+- [harness/agent/base.py:97-167](file://harness/agent/base.py#L97-L167)
 - [harness/context/manager.py:61-118](file://harness/context/manager.py#L61-L118)
 - [harness/mcp/protocol.py:100-139](file://harness/mcp/protocol.py#L100-L139)
 - [harness/session/manager.py:124-143](file://harness/session/manager.py#L124-L143)
+- [setup.sh:20-36](file://setup.sh#L20-L36)
 
 ## Conclusion
-HarnessAIDemo demonstrates how to build robust, autonomous AI agents by combining an iterative Agent Loop with context-aware prompting, memory, tools, standardized protocols, modular skills, isolated sessions, and multi-agent coordination. It serves as both an educational resource and a practical foundation for transforming LLMs into capable agents that can reason across steps, leverage external tools, and collaborate effectively. Beginners can explore the demos to grasp core concepts, while experienced developers can extend the framework with custom tools, skills, and orchestrators tailored to their applications.
+HarnessAIDemo demonstrates how to build robust, autonomous AI agents by combining an iterative Agent Loop with context-aware prompting, memory, tools, standardized protocols, modular skills, isolated sessions, and multi-agent coordination. Now properly packaged as `harness-ai-demo` version 0.1.0, it serves as both an educational resource and a practical foundation for transforming LLMs into capable agents that can reason across steps, leverage external tools, and collaborate effectively. Beginners can explore the demos to grasp core concepts, while experienced developers can extend the framework with custom tools, skills, and orchestrators tailored to their applications.
 
-[No sources needed since this section summarizes without analyzing specific files]
+The migration to proper Python packaging enables easy installation, dependency management, and integration into larger projects. With the `harness-demo` entry point and standardized project structure, the framework is ready for production use and further development.

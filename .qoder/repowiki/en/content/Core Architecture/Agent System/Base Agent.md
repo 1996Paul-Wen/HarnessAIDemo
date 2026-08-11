@@ -13,6 +13,13 @@
 - [demo_agent.py](file://demos/demo_agent.py)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Enhanced AgentTrace system documentation with comprehensive execution tracing details
+- Updated AgentTrace section to reflect detailed step recording capabilities
+- Added information about multi-step reasoning process monitoring
+- Updated troubleshooting guide with enhanced debugging capabilities
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -26,7 +33,7 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document explains the BaseAgent class and its core Agent Loop that transforms an LLM into an autonomous agent through iterative reasoning. It covers how context is built, how LLM calls are made, how tool calls are executed and fed back, and how final responses are handled. It also documents the BaseAgent constructor parameters, the run() lifecycle, fallback behavior, subclassing patterns for custom agents, and the AgentTrace debugging system.
+This document explains the BaseAgent class and its core Agent Loop that transforms an LLM into an autonomous agent through iterative reasoning. It covers how context is built, how LLM calls are made, how tool calls are executed and fed back, and how final responses are handled. It also documents the BaseAgent constructor parameters, the run() lifecycle, fallback behavior, subclassing patterns for custom agents, and the enhanced AgentTrace debugging system that provides comprehensive execution tracing for multi-step reasoning processes.
 
 ## Project Structure
 The BaseAgent lives in the harness.agent package and orchestrates interactions with:
@@ -40,6 +47,7 @@ graph TB
 subgraph "Agent"
 BA["BaseAgent"]
 TA["TaskAgent"]
+AT["AgentTrace"]
 end
 subgraph "LLM"
 LLM["BaseLLM / Backends"]
@@ -55,13 +63,14 @@ end
 BA --> LLM
 BA --> TR
 BA --> CM
+BA --> AT
 CM --> HM
 TA --> BA
 TR --> BT
 ```
 
 **Diagram sources**
-- [base.py:63-165](file://harness/agent/base.py#L63-L165)
+- [base.py:63-167](file://harness/agent/base.py#L63-L167)
 - [task.py:32-73](file://harness/agent/task.py#L32-L73)
 - [engine.py:127-141](file://harness/llm/engine.py#L127-L141)
 - [registry.py:17-74](file://harness/tools/registry.py#L17-L74)
@@ -69,7 +78,7 @@ TR --> BT
 - [hybrid.py:22-84](file://harness/memory/hybrid.py#L22-L84)
 
 **Section sources**
-- [base.py:1-165](file://harness/agent/base.py#L1-L165)
+- [base.py:1-167](file://harness/agent/base.py#L1-L167)
 - [task.py:1-73](file://harness/agent/task.py#L1-L73)
 - [engine.py:1-421](file://harness/llm/engine.py#L1-L421)
 - [registry.py:1-74](file://harness/tools/registry.py#L1-L74)
@@ -78,7 +87,7 @@ TR --> BT
 
 ## Core Components
 - BaseAgent: Implements the core agent loop, manages iteration, context building, LLM calls, tool execution, response handling, and fallbacks.
-- AgentTrace: Records step-by-step execution details for debugging and monitoring.
+- **Enhanced AgentTrace**: Records comprehensive step-by-step execution details including LLM calls, tool invocations, tool results, and final answers for debugging and monitoring multi-step reasoning processes.
 - TaskAgent: A specialized agent subclass that sets a task-oriented system prompt and provides a structured execute_task interface.
 - ContextManager: Assembles messages including system prompt, tool descriptions, memory context, conversation history, and current input.
 - ToolRegistry: Central catalog for registering, listing, and executing tools with error handling.
@@ -86,13 +95,13 @@ TR --> BT
 - LLM Engine: Abstract interface and backends for generating responses and parsing tool calls from model output.
 
 Key responsibilities:
-- BaseAgent.run(): Orchestrates the full cycle per user turn.
+- BaseAgent.run(): Orchestrates the full cycle per user turn with enhanced tracing.
 - ContextManager.build_messages(): Builds the complete message list for each LLM call.
 - ToolRegistry.execute(): Executes tools safely and returns results or errors.
 - HybridMemory.get_relevant_context(): Merges recent and relevant past memories into context.
 
 **Section sources**
-- [base.py:38-165](file://harness/agent/base.py#L38-L165)
+- [base.py:38-167](file://harness/agent/base.py#L38-L167)
 - [task.py:32-73](file://harness/agent/task.py#L32-L73)
 - [manager.py:41-118](file://harness/context/manager.py#L41-L118)
 - [registry.py:17-74](file://harness/tools/registry.py#L17-L74)
@@ -100,7 +109,7 @@ Key responsibilities:
 - [engine.py:23-57](file://harness/llm/engine.py#L23-L57)
 
 ## Architecture Overview
-The Agent Loop is the heart of the system. Each user turn triggers a controlled cycle:
+The Agent Loop is the heart of the system. Each user turn triggers a controlled cycle with comprehensive tracing:
 1. Build context using ContextManager (system prompt + tool descriptions + memory + history + current input).
 2. Call LLM.generate() to get a response.
 3. If no tool calls are requested, store the assistant response and return it as the final answer.
@@ -110,21 +119,27 @@ The Agent Loop is the heart of the system. Each user turn triggers a controlled 
 sequenceDiagram
 participant User as "User"
 participant Agent as "BaseAgent"
+participant Trace as "AgentTrace"
 participant Ctx as "ContextManager"
 participant LLM as "BaseLLM"
 participant Reg as "ToolRegistry"
 User->>Agent : run(user_input)
+Agent->>Trace : Initialize trace
 Agent->>Ctx : build_messages(history, user_input)
 Ctx-->>Agent : messages
+Agent->>Trace : add_step("llm_call", iteration)
 Agent->>LLM : generate(messages)
 LLM-->>Agent : LLMResponse(content, tool_calls)
 alt No tool calls
+Agent->>Trace : add_step("final_answer", content)
 Agent->>Agent : append assistant to history
 Agent-->>User : content (final answer)
 else Tool calls present
 loop For each tool call
+Agent->>Trace : add_step("tool_call", name, args)
 Agent->>Reg : execute(name, arguments)
 Reg-->>Agent : ToolResult(success, output/error)
+Agent->>Trace : add_step("tool_result", name, output)
 Agent->>Agent : append tool observation to history
 end
 Agent->>LLM : generate(messages with tool results)
@@ -133,7 +148,7 @@ end
 ```
 
 **Diagram sources**
-- [base.py:97-160](file://harness/agent/base.py#L97-L160)
+- [base.py:97-167](file://harness/agent/base.py#L97-L167)
 - [manager.py:61-104](file://harness/context/manager.py#L61-L104)
 - [engine.py:127-141](file://harness/llm/engine.py#L127-L141)
 - [registry.py:43-60](file://harness/tools/registry.py#L43-L60)
@@ -149,24 +164,25 @@ end
 - max_iterations: Upper bound on tool-call loops to prevent infinite cycles.
 - verbose: Enables logging/printing of intermediate steps during execution.
 
-These parameters configure the agent’s capabilities, safety limits, and observability.
+These parameters configure the agent's capabilities, safety limits, and observability.
 
 **Section sources**
 - [base.py:73-95](file://harness/agent/base.py#L73-L95)
 
 ### Agent Loop: run() Implementation
-The run() method implements the core lifecycle:
-- Initializes AgentTrace for each turn.
+The run() method implements the core lifecycle with enhanced tracing:
+- Initializes AgentTrace for each turn to capture comprehensive execution details.
 - Iterates up to max_iterations times:
   - Builds messages via ContextManager.build_messages().
   - Calls LLM.generate() with the assembled messages.
+  - Records LLM call step in trace with iteration number.
   - If no tool calls: appends assistant response to history, stores in memory, records final_answer trace, and returns content.
   - If tool calls exist:
     - Appends assistant message (if any content) to history.
     - For each tool call:
-      - Records tool_call trace.
+      - Records tool_call trace with name and arguments.
       - Executes tool via ToolRegistry.execute().
-      - Records tool_result trace.
+      - Records tool_result trace with output or error.
       - Appends tool observation message to history with role "tool".
     - Continues loop with updated history; subsequent iterations use empty user_input so the LLM sees tool results and decides next steps.
 - Fallback: If max_iterations is reached without a final answer, appends a fallback assistant message and returns a polite error string.
@@ -177,33 +193,47 @@ Start(["run(user_input)"]) --> Init["Initialize AgentTrace"]
 Init --> Loop{"iteration < max_iterations?"}
 Loop --> |No| Fallback["Append fallback assistant message<br/>Return fallback text"]
 Loop --> |Yes| Build["ContextManager.build_messages(history, user_input)"]
-Build --> CallLLM["LLM.generate(messages)"]
+Build --> RecordLLM["Record llm_call trace"]
+RecordLLM --> CallLLM["LLM.generate(messages)"]
 CallLLM --> HasTools{"response.has_tool_calls?"}
 HasTools --> |No| StoreAnswer["Append assistant to history<br/>Store in memory<br/>Record final_answer trace"]
 StoreAnswer --> ReturnAnswer["Return content"]
 HasTools --> |Yes| AppendAssistant["Append assistant message if content exists"]
-AppendAssistant --> ExecTools["For each tool call:<br/>execute via ToolRegistry<br/>Record tool_call/tool_result traces"]
+AppendAssistant --> ExecTools["For each tool call:<br/>Record tool_call trace<br/>execute via ToolRegistry<br/>Record tool_result trace"]
 ExecTools --> AppendObs["Append tool observation to history"]
 AppendObs --> NextIter["Continue loop with updated history"]
 NextIter --> Loop
 ```
 
 **Diagram sources**
-- [base.py:97-160](file://harness/agent/base.py#L97-L160)
+- [base.py:97-167](file://harness/agent/base.py#L97-L167)
 
 **Section sources**
-- [base.py:97-160](file://harness/agent/base.py#L97-L160)
+- [base.py:97-167](file://harness/agent/base.py#L97-L167)
 
-### AgentTrace System
-AgentTrace records each step of the agent loop:
-- Step types include llm_call, tool_call, tool_result, and final_answer.
-- add_step() appends structured entries with metadata like iteration, tool name, arguments, and outputs.
-- summary() produces a human-readable log suitable for debugging and monitoring.
+### Enhanced AgentTrace System
+The AgentTrace system provides comprehensive execution tracing for debugging and monitoring multi-step reasoning processes:
 
-Usage:
-- Instantiated at the start of run().
+**Step Recording Capabilities:**
+- **LLM Calls**: Records each LLM invocation with iteration numbers for tracking reasoning progress.
+- **Tool Invocations**: Captures tool names and arguments for every tool call attempt.
+- **Tool Results**: Logs successful outputs or error messages from tool executions.
+- **Final Answers**: Stores the ultimate response when the agent completes its task.
+
+**Implementation Details:**
+- `add_step(step_type, data)`: Adds structured entries with metadata like iteration numbers, tool names, arguments, and outputs.
+- `summary()`: Generates human-readable logs suitable for debugging and monitoring, showing the complete execution flow.
+
+**Usage Pattern:**
+- Instantiated at the start of each run() call.
 - Updated throughout the loop to capture LLM calls, tool executions, results, and final answers.
-- Provides a concise overview of execution flow for troubleshooting.
+- Provides concise overview of execution flow for troubleshooting complex multi-step reasoning processes.
+
+**Enhanced Features:**
+- Comprehensive step type support: llm_call, tool_call, tool_result, final_answer
+- Structured data capture with rich metadata
+- Human-readable summary generation for easy debugging
+- Integration with verbose logging for real-time monitoring
 
 **Section sources**
 - [base.py:38-61](file://harness/agent/base.py#L38-L61)
@@ -221,7 +251,7 @@ This ensures the LLM has sufficient context while respecting token limits and pr
 
 **Section sources**
 - [manager.py:61-104](file://harness/context/manager.py#L61-L104)
-- [hybrid.py:46-73](file://harness/memory/hybrid.py#L46-L73)
+- [hybrid.py:46-73](file://harness/memory/hybrid.py#L46-73)
 
 ### Tool Execution and Error Handling
 ToolRegistry.execute() centralizes tool invocation:
@@ -281,6 +311,7 @@ graph LR
 BaseAgent["BaseAgent"] --> ContextManager["ContextManager"]
 BaseAgent --> ToolRegistry["ToolRegistry"]
 BaseAgent --> BaseLLM["BaseLLM"]
+BaseAgent --> AgentTrace["AgentTrace"]
 ContextManager --> HybridMemory["HybridMemory"]
 ToolRegistry --> BaseTool["BaseTool"]
 BaseLLM --> ToolCallParser["ToolCallParser"]
@@ -309,8 +340,7 @@ BaseLLM --> ToolCallParser["ToolCallParser"]
 - Max iterations: Tune max_iterations to avoid excessive LLM calls and tool executions for complex tasks.
 - Tool efficiency: Prefer tools that return concise outputs; large tool outputs increase context size and cost.
 - Backend selection: Use MockBackend for fast iteration and testing; switch to TransformersBackend for real inference when ready.
-
-[No sources needed since this section provides general guidance]
+- **Tracing overhead**: AgentTrace adds minimal overhead but provides valuable debugging insights; consider disabling verbose mode in production for performance.
 
 ## Troubleshooting Guide
 Common issues and resolutions:
@@ -318,7 +348,8 @@ Common issues and resolutions:
 - Missing tools: Confirm tools are registered in ToolRegistry; check tool names match exactly what the model requests.
 - Tool execution errors: Inspect ToolResult.error messages; validate input schemas and handle edge cases in tool.execute().
 - Context overflow: Reduce history length or limit memory retrieval; consider truncating tool outputs before appending to history.
-- Debugging: Use AgentTrace.summary() to review the sequence of LLM calls, tool executions, and final answers.
+- **Enhanced Debugging**: Use AgentTrace.summary() to review the complete sequence of LLM calls, tool executions, results, and final answers for understanding multi-step reasoning flows.
+- **Multi-step Reasoning Issues**: Leverage the comprehensive AgentTrace to identify where reasoning breaks down in complex workflows by examining the step-by-step execution log.
 
 **Section sources**
 - [registry.py:43-60](file://harness/tools/registry.py#L43-L60)
@@ -326,9 +357,7 @@ Common issues and resolutions:
 - [base.py:38-61](file://harness/agent/base.py#L38-L61)
 
 ## Conclusion
-BaseAgent encapsulates the essential Agent Loop that turns an LLM into an autonomous agent by iteratively building context, invoking the model, executing tools, and handling responses. Its constructor parameters allow customization of identity, capabilities, memory, and verbosity. The run() method manages the lifecycle, enforces iteration limits, and provides fallback behavior. AgentTrace offers visibility into execution steps for debugging and monitoring. Subclassing BaseAgent enables domain-specific agents like TaskAgent, while the tool and memory ecosystems provide extensibility and robustness.
-
-[No sources needed since this section summarizes without analyzing specific files]
+BaseAgent encapsulates the essential Agent Loop that turns an LLM into an autonomous agent by iteratively building context, invoking the model, executing tools, and handling responses. Its constructor parameters allow customization of identity, capabilities, memory, and verbosity. The run() method manages the lifecycle, enforces iteration limits, and provides fallback behavior. The enhanced AgentTrace system provides comprehensive visibility into execution steps for debugging and monitoring multi-step reasoning processes. Subclassing BaseAgent enables domain-specific agents like TaskAgent, while the tool and memory ecosystems provide extensibility and robustness.
 
 ## Appendices
 
