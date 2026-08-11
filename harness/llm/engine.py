@@ -187,18 +187,21 @@ class TransformersBackend(BaseLLM):
                 device = "mps"
             else:
                 device = "cpu"
-
+        logger.info(f"Target device is {device}")
+        
         self.tokenizer = AutoTokenizer.from_pretrained(
-            self.config.model_name, trust_remote_code=True
+            self.config.model_name, trust_remote_code=True,
+            local_files_only=True,
         )
+        # Load model weights to CPU first, then move to target device.
+        # Avoid device_map which can hang with accelerate on MPS.
         self.model = AutoModelForCausalLM.from_pretrained(
             self.config.model_name,
-            torch_dtype=torch.float32 if device == "cpu" else torch.float16,
-            device_map=device if device != "cpu" else None,
+            dtype=torch.float32 if device == "cpu" else torch.float16,
             trust_remote_code=True,
+            local_files_only=True,
         )
-        if device == "cpu":
-            self.model = self.model.to("cpu")
+        self.model = self.model.to(device)
         self.model.eval()
         self._device = device
         logger.info(f"Model loaded on {device}")
