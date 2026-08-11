@@ -56,7 +56,7 @@ class AgentTrace:
                 out = s.get("output", "")[:80]
                 lines.append(f"  [Tool Result] {out}")
             elif t == "final_answer":
-                lines.append(f"  [Answer] {s.get('content', '')[:80]}")
+                lines.append(f"  [Answer] {s.get('content', '')[:100]} (max 100 chars)")
         return "\n".join(lines)
 
 
@@ -122,6 +122,8 @@ class BaseAgent:
                 self.history.append(Message(role="assistant", content=response.content))
                 self.context_manager.store_assistant_response(response.content)
                 trace.add_step("final_answer", {"content": response.content})
+                if self.verbose:
+                    print(f"[{self.name}] full agent loop trace: {trace.summary()}")
                 return response.content
 
             # Step 4: Execute tool calls and feed results back
