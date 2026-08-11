@@ -37,6 +37,7 @@ class Session:
     created_at: float = field(default_factory=time.time)
     messages: list[dict] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
+    _on_change: Optional[callable] = field(default=None, repr=False, compare=False)
 
     def add_message(self, role: str, content: str) -> None:
         self.messages.append({
@@ -44,6 +45,8 @@ class Session:
             "content": content,
             "timestamp": time.time(),
         })
+        if self._on_change:
+            self._on_change(self)
 
     def get_history(self, n: int = 20) -> list[dict]:
         return self.messages[-n:]
@@ -81,7 +84,7 @@ class SessionManager:
     def create_session(self, title: str = "New Session") -> Session:
         """Create a new session and make it active."""
         session_id = str(uuid.uuid4())[:8]
-        session = Session(id=session_id, title=title)
+        session = Session(id=session_id, title=title, _on_change=self._save)
         self._sessions[session_id] = session
         self._active_session_id = session_id
         self._save(session)
@@ -114,6 +117,13 @@ class SessionManager:
         if self._active_session_id == session_id:
             self._active_session_id = None
 
+    def add_message(self, session_id: str, role: str, content: str) -> None:
+        """Add a message to a session and persist to disk."""
+        session = self._sessions.get(session_id)
+        if session is None:
+            raise ValueError(f"Session not found: {session_id}")
+        session.add_message(role, content)  # _on_change callback handles _save
+
     def rename_session(self, session_id: str, new_title: str) -> None:
         """Rename a session."""
         session = self._sessions.get(session_id)
@@ -137,6 +147,7 @@ class SessionManager:
                 with open(path) as f:
                     data = json.load(f)
                 session = Session.from_dict(data)
+                session._on_change = self._save
                 self._sessions[session.id] = session
             except Exception as e:
                 logger.error(f"Failed to load session {fname}: {e}")
