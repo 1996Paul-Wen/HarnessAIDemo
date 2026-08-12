@@ -6,6 +6,7 @@ Provides both an interactive REPL and command-based access to demos:
 - python run.py multi-agent   Multi-agent orchestration demo
 - python run.py mcp           MCP protocol demonstration
 - python run.py skills        Skill system demo
+- python run.py memory        Memory system demo
 - python run.py session       Multi-session management demo
 
 Environment variables:
@@ -276,6 +277,12 @@ def run_skills_demo():
         print(f"  {prompt[:200]}...")
 
 
+def run_memory_demo():
+    """Memory system demonstration."""
+    from demos.demo_memory import main as memory_main
+    memory_main()
+
+
 def run_session_demo():
     """Multi-session management demonstration."""
     from harness.session.manager import SessionManager
@@ -334,7 +341,7 @@ def main():
 
     if len(sys.argv) < 2:
         print("Usage: python run.py <demo>")
-        print("Available demos: chat, agent, multi-agent, mcp, skills, session")
+        print("Available demos: chat, agent, multi-agent, mcp, skills, memory, session")
         print("\nTip: Set HARNESS_LLM_BACKEND=mock to skip model download")
         sys.exit(1)
 
@@ -346,6 +353,7 @@ def main():
         "multi-agent": run_multi_agent_demo,
         "mcp": run_mcp_demo,
         "skills": run_skills_demo,
+        "memory": run_memory_demo,
         "session": run_session_demo,
     }
 

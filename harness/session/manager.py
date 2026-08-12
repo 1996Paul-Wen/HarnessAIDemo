@@ -29,7 +29,10 @@ its own tools and context.
 from __future__ import annotations
 import json, os, time, uuid, logging
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from harness.memory.base import BaseMemory
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +45,7 @@ class Session:
     created_at: float = field(default_factory=time.time)
     messages: list[dict] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
+    memory: Optional[Any] = field(default=None, repr=False, compare=False)
     _on_message: Optional[callable] = field(default=None, repr=False, compare=False)
 
     def add_message(self, role: str, content: str) -> None:
@@ -83,15 +87,18 @@ class SessionManager:
     Storage layout (one directory per session)::
 
         .sessions/
+          global_memory.json  - shared across all sessions (user preferences, facts)
           <session_id>/
             meta.json       - session metadata (rewritten on title/metadata change)
             messages.jsonl  - one JSON object per line, append-only
+            memory.json     - isolated long-term memory for this session
     """
 
     def __init__(self, storage_dir: str = ".sessions"):
         self.storage_dir = storage_dir
         self._sessions: dict[str, Session] = {}
         self._active_session_id: Optional[str] = None
+        self._global_memory: Optional[Any] = None
         os.makedirs(storage_dir, exist_ok=True)
         self._load_all()
 
@@ -107,6 +114,74 @@ class SessionManager:
         self._save_meta(session)
         logger.info(f"Created session: {session_id} - {title}")
         return session
+
+    def get_memory(self, session_id: Optional[str] = None) -> "BaseMemory":
+        """Get the memory instance for a session (lazy-initialized, isolated per session).
+
+        If session_id is None, uses the active session.
+        Each session gets its own HybridMemory with a dedicated storage file,
+        ensuring no memory leakage between sessions.
+        """
+        sid = session_id or self._active_session_id
+        if sid is None:
+            raise ValueError("No active session and no session_id provided")
+        session = self._sessions.get(sid)
+        if session is None:
+            raise ValueError(f"Session not found: {sid}")
+        if session.memory is None:
+            from harness.memory.hybrid import HybridMemory
+            storage_path = os.path.join(
+                self._session_dir(session), "memory.json"
+            )
+            session.memory = HybridMemory(storage_path=storage_path)
+        return session.memory
+
+    @property
+    def global_memory(self) -> "BaseMemory":
+        """Get the global memory shared across all sessions (lazy-initialized).
+
+        Global memory stores user-level knowledge that applies to every session:
+        - User preferences ("I prefer concise answers")
+        - User facts ("I'm a senior backend engineer")
+        - Cross-cutting knowledge useful regardless of session topic
+        """
+        if self._global_memory is None:
+            from harness.memory.hybrid import HybridMemory
+            storage_path = os.path.join(self.storage_dir, "global_memory.json")
+            self._global_memory = HybridMemory(storage_path=storage_path)
+        return self._global_memory
+
+    def search_memories(
+        self,
+        query: str,
+        session_id: Optional[str] = None,
+        top_k: int = 5,
+    ) -> list[dict]:
+        """Search across global + session memory, returning combined results.
+
+        Returns a list of dicts with 'source' ('global' or 'session') and
+        'content' keys, deduplicated and sorted by relevance.
+        """
+        sid = session_id or self._active_session_id
+        seen_contents: set[str] = set()
+        results: list[dict] = []
+
+        # 1. Global memory results (shared across sessions)
+        for item in self.global_memory.search(query, top_k=top_k):
+            if item.content not in seen_contents:
+                seen_contents.add(item.content)
+                results.append({"source": "global", "content": item.content, "role": item.role})
+
+        # 2. Session-specific memory results
+        if sid and sid in self._sessions:
+            session_mem = self._sessions[sid].memory
+            if session_mem is not None:
+                for item in session_mem.search(query, top_k=top_k):
+                    if item.content not in seen_contents:
+                        seen_contents.add(item.content)
+                        results.append({"source": "session", "content": item.content, "role": item.role})
+
+        return results[:top_k]
 
     def switch_session(self, session_id: str) -> Session:
         """Switch to a different session."""
@@ -129,7 +204,7 @@ class SessionManager:
         """Delete a session and its stored data."""
         self._sessions.pop(session_id, None)
         session_dir = os.path.join(self.storage_dir, session_id)
-        for fname in ("meta.json", "messages.jsonl"):
+        for fname in ("meta.json", "messages.jsonl", "memory.json"):
             path = os.path.join(session_dir, fname)
             if os.path.exists(path):
                 os.remove(path)

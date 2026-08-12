@@ -8,6 +8,7 @@ Usage:
     python run.py multi-agent     # Multi-agent orchestration
     python run.py mcp             # MCP protocol demonstration
     python run.py skills          # Skill system demonstration
+    python run.py memory          # Memory system demonstration
     python run.py session         # Multi-session management demo
 
 Environment:

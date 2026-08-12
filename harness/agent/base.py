@@ -94,6 +94,16 @@ class BaseAgent:
             tool_registry=self.tool_registry,
         )
 
+    def set_memory(self, memory: BaseMemory) -> None:
+        """Swap the memory instance at runtime (e.g., when switching sessions).
+
+        This enables per-session memory isolation: each session gets its own
+        memory, and the agent switches to the correct one when the active
+        session changes.
+        """
+        self.memory = memory
+        self.context_manager.memory = memory
+
     def run(self, user_input: str) -> str:
         """Execute the agent loop for one user turn.
 

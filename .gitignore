@@ -25,3 +25,6 @@ memory_store.json
 # Model cache (usually in ~/.cache/huggingface)
 # Uncomment to ignore local model cache:
 # .cache/
+
+# demo
+.demo*

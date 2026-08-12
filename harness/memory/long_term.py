@@ -14,11 +14,14 @@ The retrieval step is crucial - it determines which past experiences
 inform the current response.
 """
 from __future__ import annotations
-import json, math, os, logging
+import json, math, os, re, logging
 from collections import Counter
 from harness.memory.base import BaseMemory, MemoryItem
 
 logger = logging.getLogger(__name__)
+
+# Pattern to extract word tokens (strips punctuation)
+_WORD_RE = re.compile(r"[a-z0-9']+")
 
 
 class LongTermMemory(BaseMemory):
@@ -28,6 +31,11 @@ class LongTermMemory(BaseMemory):
         self.storage_path = storage_path
         self._items: list[MemoryItem] = []
         self._load()
+
+    @staticmethod
+    def _tokenize(text: str) -> list[str]:
+        """Lowercase and strip punctuation for reliable matching."""
+        return _WORD_RE.findall(text.lower())
 
     def add(self, role: str, content: str, **metadata) -> None:
         item = MemoryItem(role=role, content=content, metadata=metadata)
@@ -42,24 +50,26 @@ class LongTermMemory(BaseMemory):
         if not self._items:
             return []
 
-        query_terms = query.lower().split()
+        query_terms = self._tokenize(query)
+        if not query_terms:
+            return []
         n_docs = len(self._items)
         # Compute IDF for each term
         doc_freq = Counter()
         for item in self._items:
-            words = set(item.content.lower().split())
+            words = set(self._tokenize(item.content))
             for w in query_terms:
                 if w in words:
                     doc_freq[w] += 1
 
         scores = []
         for item in self._items:
-            words = item.content.lower().split()
-            tf = Counter(words)
+            tokens = self._tokenize(item.content)
+            tf = Counter(tokens)
             score = 0.0
             for term in query_terms:
                 if term in tf:
-                    term_tf = tf[term] / len(words)
+                    term_tf = tf[term] / len(tokens)
                     idf = math.log((n_docs + 1) / (doc_freq.get(term, 0) + 1)) + 1
                     score += term_tf * idf
             scores.append((score, item))
